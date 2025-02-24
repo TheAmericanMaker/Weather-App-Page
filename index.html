@@ -827,9 +827,15 @@
         async function searchSavedLocation(lat, lon, name) {
             const container = document.getElementById('weather-container');
             const locationDisplay = document.getElementById('location-display');
+            const searchInput = document.getElementById('location-search');
             
             try {
                 container.innerHTML = '<div class="loading"><div class="spinner"></div><p>Loading weather data...</p></div>';
+                
+                // Store the coordinates in the search input
+                searchInput.setAttribute('data-lat', lat);
+                searchInput.setAttribute('data-lon', lon);
+                searchInput.value = name;
                 
                 locationDisplay.innerHTML = `
                     <h2 class="location-header">
