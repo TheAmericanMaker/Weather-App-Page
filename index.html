@@ -369,6 +369,12 @@
         </div>
     </main>
 
+    <noscript>
+        <div class="error-message">
+            This application requires JavaScript to function. Please enable JavaScript to continue.
+        </div>
+    </noscript>
+
     <script>
         let currentUnit = 'C';
         let lastWeatherData = null;
@@ -376,6 +382,15 @@
         let searchTimeout = null;
         let tempChart = null;
         let windChart = null;
+
+        const performanceMonitor = {
+            measure(name, fn) {
+                const start = performance.now();
+                fn();
+                const duration = performance.now() - start;
+                console.log(`${name} took ${duration}ms`);
+            }
+        };
 
         function toggleUnit(unit) {
             currentUnit = unit;
@@ -486,13 +501,12 @@
             });
         }
 
-        function getUVIndex(temp, weather) {
-            // Simple UV estimation based on temperature and weather
-            // This is a basic approximation - ideally would come from API
+        function getUVIndex(tempCelsius, weather) {
+            // Now we know we're always receiving Celsius temperature
             if (weather.toLowerCase().includes('cloud') || weather.toLowerCase().includes('rain')) {
-                return Math.min(2, Math.floor(temp / 10));
+                return Math.min(2, Math.floor(tempCelsius / 10));
             }
-            return Math.min(11, Math.floor(temp / 5));
+            return Math.min(11, Math.floor(tempCelsius / 5));
         }
 
         function getUVWarning(uvIndex) {
@@ -581,15 +595,18 @@
                 // Calculate actual sunrise/sunset times
                 const sunTimes = calculateSunTimes(date, lat, lon);
                 
+                // Always use the original Celsius temperature (timepoint.temp2m) for UV calculation
+                const uvIndex = getUVIndex(timepoint.temp2m, timepoint.weather);
+                const uvWarning = getUVWarning(uvIndex);
+                
+                // Convert temperature for display separately
                 const temp = convertTemp(timepoint.temp2m, currentUnit);
                 const icon = getWeatherIcon(timepoint.weather);
                 const windDirection = getWindDirection(timepoint.wind10m.direction);
                 const windSpeed = getBeaufortDescription(timepoint.wind10m.speed);
                 
-                // Calculate additional metrics
-                const uvIndex = getUVIndex(temp, timepoint.weather);
-                const uvWarning = getUVWarning(uvIndex);
-                const humidity = calculateHumidity(temp, timepoint.weather);
+                // Calculate humidity using original Celsius temperature
+                const humidity = calculateHumidity(timepoint.temp2m, timepoint.weather);
                 
                 const rotationDegrees = {
                     'N': 0, 'NE': 45, 'E': 90, 'SE': 135,
@@ -923,6 +940,23 @@
                 document.getElementById('search-suggestions').style.display = 'none';
             }
         });
+
+        async function handleWeatherError(error) {
+            const container = document.getElementById('weather-container');
+            const errorMessage = error.response?.status === 429 
+                ? 'Too many requests. Please try again later.'
+                : 'Unable to fetch weather data. Please try again.';
+            
+            container.innerHTML = `
+                <div class="error" role="alert">
+                    <i class="fas fa-exclamation-circle"></i>
+                    ${errorMessage}
+                    <button onclick="retryLastRequest()" class="retry-button">
+                        Retry
+                    </button>
+                </div>
+            `;
+        }
     </script>
 </body>
 </html> 
