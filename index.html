@@ -705,7 +705,7 @@
         }
 
         async function getWeatherForecast(longitude, latitude) {
-            const baseUrl = 'http://www.7timer.info/bin/api.pl';
+            const baseUrl = 'https://www.7timer.info/bin/api.pl';
             const url = `${baseUrl}?lon=${longitude}&lat=${latitude}&product=civil&output=json`;
             
             const response = await fetch(url);
