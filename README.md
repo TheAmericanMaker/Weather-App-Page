@@ -1,3 +1,4 @@
+Use this link to view the live site: https://theamericanmaker.github.io/weather-dashboard/
 # Interactive Weather Dashboard
 
 A modern, feature-rich weather dashboard that provides detailed weather information with an intuitive user interface. Built with vanilla JavaScript, this application offers real-time weather data visualization and location-based weather forecasts.
