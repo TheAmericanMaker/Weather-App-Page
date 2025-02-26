@@ -1,4 +1,5 @@
 # Weather Dashboard
+Live at https://theamericanmaker.github.io/weather-dashboard/
 
 A simple weather dashboard application that provides weather information through an accessible interface. Built with vanilla JavaScript and modern web technologies.
 
